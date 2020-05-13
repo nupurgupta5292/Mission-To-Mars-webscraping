@@ -125,7 +125,7 @@ def scrape_info():
 
     #Setting index to 'Parameter'
     mars_facts_table = mars_facts_table.set_index('Parameter')
-    mars_data['mars_facts_table'] = mars_facts_table
+    mars_data['mars_facts_table'] = mars_facts_table.to_html()
 
     #---------------------------------------------------------------------------
     # Scraping data from USGS Astrogeology site
