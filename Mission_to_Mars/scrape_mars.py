@@ -11,7 +11,7 @@ def init_browser():
     return Browser("chrome", **executable_path, headless=False)
 
 
-def scrape():
+def scrape_info():
     # Scraping data from NASA Mars News Site
     browser = init_browser()
 
@@ -22,7 +22,7 @@ def scrape():
     url = 'https://mars.nasa.gov/news/?page=0&per_page=40&order=publish_date+desc%2Ccreated_at+desc&search=&category=19%2C165%2C184%2C204&blank_scope=Latest'
     browser.visit(url)
 
-    time.sleep(1)
+    time.sleep(3)
 
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
@@ -51,6 +51,8 @@ def scrape():
     #print(url_JPL+'/spaceimages/?search=&category=Mars')
     browser.visit(url_JPL+'/spaceimages/?search=&category=Mars')
 
+    time.sleep(3)
+
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
 
@@ -69,7 +71,7 @@ def scrape():
     featured_image_url = image_url[start+len("url('"):end]
     featured_image_url_final = url_JPL + featured_image_url
 
-    print(featured_image_url_final)
+    # print(featured_image_url_final)
     mars_data['featured_image'] = featured_image_url_final
 
     # Close the browser after scraping
@@ -82,18 +84,25 @@ def scrape():
     # URL for Mars Weather Twitter Page
     url_twitter= 'https://twitter.com/marswxreport?lang=en'
     browser.visit(url_twitter)
+    time.sleep(2)
 
     html = browser.html
     soup = BeautifulSoup(html, 'html.parser')
 
     # Upon inspecting the Twitter page, we know the tweet text is contained in the 'div' tag with following classes
     # Getting the 'div' section that contains the latest tweet
-    tweet = soup.find('div', class_='css-1dbjc4n r-1iusvr4 r-16y2uox r-1777fci r-5f2r5o r-1mi0q7o')
+    try:
+        tweet = soup.find('div', class_='css-1dbjc4n r-1iusvr4 r-16y2uox r-1777fci r-5f2r5o r-1mi0q7o')
 
-    #Getting the span tag that contains the text of the latest tweet (fifth span tag in the above 'div')
-    tweet_text = tweet.find_all('span', class_='css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0')[4].text.strip()
-    tweet_text = tweet_text.replace('\n', ' ')
-    print(tweet_text)
+        #Getting the span tag that contains the text of the latest tweet (fifth span tag in the above 'div')
+        tweet_text = tweet.find_all('span', class_='css-901oao css-16my406 r-1qd0xha r-ad9z0x r-bcqeeo r-qvutc0')[4].text.strip()
+        tweet_text = tweet_text.replace('\n', ' ')
+        print(tweet_text)
+
+    except:
+        tweet_text = 'Latest Tweet on Mars Weather could not be retrieved. Please inspect the HTML code'
+        print(tweet_text)
+    
     mars_data['temp_tweet'] = tweet_text
 
     #Closing browser after scrapping
@@ -103,6 +112,7 @@ def scrape():
     # Scraping data from Mars Facts Webpage
 
     #Scraping Mars Facts webpage using .read_html() function from Pandas library
+    browser = init_browser()
     url_facts = 'https://space-facts.com/mars/'
     mars_facts = pd.read_html(url_facts)
     mars_facts
@@ -129,7 +139,7 @@ def scrape():
 
     # looping through the four tags and load the data into the empty list
     for i in range (4):
-        time.sleep(2)
+        time.sleep(4)
         images = browser.find_by_tag('h3')
         images[i].click()
         html = browser.html
